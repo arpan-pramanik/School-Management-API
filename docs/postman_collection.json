@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "School Management API",
-    "description": "APIs to manage schools and find them by geographic proximity.",
+    "description": "APIs to manage schools and find them by geographic proximity.\n\nBase URL: https://educase-two-omega.vercel.app\n\nEndpoints:\n- POST /api/addSchool - Add a new school with name, address, latitude, and longitude\n- GET /api/listSchools - List all schools sorted by distance from the given coordinates",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -29,9 +29,82 @@
             "addSchool"
           ]
         },
-        "description": "Adds a new school to the database."
+        "description": "Adds a new school to the database.\n\nAll fields are required:\n- name (string, non-empty)\n- address (string, non-empty)\n- latitude (number, -90 to 90)\n- longitude (number, -180 to 180)"
       },
-      "response": []
+      "response": [
+        {
+          "name": "Success - School Added",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Springfield Elementary\",\n  \"address\": \"123 Fake Street, Springfield\",\n  \"latitude\": 39.7817,\n  \"longitude\": -89.6501\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/addSchool",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "addSchool"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"message\": \"School added successfully\",\n  \"schoolId\": 6,\n  \"data\": {\n    \"name\": \"Springfield Elementary\",\n    \"address\": \"123 Fake Street, Springfield\",\n    \"latitude\": 39.7817,\n    \"longitude\": -89.6501\n  }\n}"
+        },
+        {
+          "name": "Validation Error - Empty Name",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"address\": \"Test\",\n  \"latitude\": 200,\n  \"longitude\": 77\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/addSchool",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "addSchool"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"\\\"name\\\" cannot be empty\"\n}"
+        }
+      ]
     },
     {
       "name": "List Schools",
@@ -51,18 +124,83 @@
             {
               "key": "latitude",
               "value": "39.78",
-              "description": "User's latitude"
+              "description": "User's latitude (-90 to 90)"
             },
             {
               "key": "longitude",
               "value": "-89.65",
-              "description": "User's longitude"
+              "description": "User's longitude (-180 to 180)"
             }
           ]
         },
-        "description": "Retrieves a list of schools sorted by geographical proximity to the provided coordinates."
+        "description": "Retrieves a list of all schools from the database, sorted by geographical distance (in km) from the provided user coordinates.\n\nDistance is calculated using the Haversine formula."
       },
-      "response": []
+      "response": [
+        {
+          "name": "Success - Schools Listed by Proximity",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/listSchools?latitude=39.78&longitude=-89.65",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "listSchools"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "39.78"
+                },
+                {
+                  "key": "longitude",
+                  "value": "-89.65"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"message\": \"Schools fetched successfully\",\n  \"count\": 6,\n  \"data\": [\n    {\n      \"id\": 6,\n      \"name\": \"Springfield Elementary\",\n      \"address\": \"123 Fake Street, Springfield\",\n      \"latitude\": 39.7817,\n      \"longitude\": -89.6501,\n      \"distance\": 0.19\n    },\n    {\n      \"id\": 4,\n      \"name\": \"Ryan International School\",\n      \"address\": \"Sector 25, Chandigarh\",\n      \"latitude\": 30.7333,\n      \"longitude\": 76.7794,\n      \"distance\": 12050.15\n    },\n    {\n      \"id\": 1,\n      \"name\": \"Delhi Public School\",\n      \"address\": \"Sector 24, Mathura Road, New Delhi\",\n      \"latitude\": 28.5355,\n      \"longitude\": 77.391,\n      \"distance\": 12301.28\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Kendriya Vidyalaya\",\n      \"address\": \"IIT Campus, Powai, Mumbai\",\n      \"latitude\": 19.1334,\n      \"longitude\": 72.9133,\n      \"distance\": 13218.80\n    },\n    {\n      \"id\": 2,\n      \"name\": \"St. Xaviers School\",\n      \"address\": \"Fort, Mumbai, Maharashtra\",\n      \"latitude\": 18.9388,\n      \"longitude\": 72.8354,\n      \"distance\": 13237.52\n    },\n    {\n      \"id\": 5,\n      \"name\": \"Test Live School\",\n      \"address\": \"123 Test Street, Bangalore\",\n      \"latitude\": 12.9716,\n      \"longitude\": 77.5946,\n      \"distance\": 14002.73\n    }\n  ]\n}"
+        },
+        {
+          "name": "Validation Error - Missing Parameters",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/listSchools",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "listSchools"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"\\\"latitude\\\" query parameter is required\"\n}"
+        }
+      ]
     }
   ],
   "event": [
